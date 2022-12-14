@@ -1,0 +1,21 @@
+{
+  "name": "googlealertsmgmt",
+  "description": "WebApp to add and delete Google Alerts based on Airtable content and update the table",
+  "version": "1.0.0",
+  "private": true,
+  "main": "listener.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "author": "Babak Mozaffari",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "airtable": "^0.11.6",
+    "chrome-cookies-secure": "^2.0.0",
+    "google-alerts-api": "^0.6.1"
+  },
+  "keywords": ["Google Alerts", "Airtable"]
+}
