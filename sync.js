@@ -1,6 +1,6 @@
 console.log("Running...");
-const baseId = "app9RtRrw9rTjgbUZ";
-// const baseId = "appdpBAn1QPm2n9Jw";
+// const baseId = "app9RtRrw9rTjgbUZ";
+const baseId = "appdpBAn1QPm2n9Jw";
 
 function sync(cookie, token) {
   const alerts = require("./googlealerts");

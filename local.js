@@ -1,17 +1,17 @@
 const sync = require("./sync");
 const alerts = require("./googlealerts");
 
-// get_google_cookie().then(cookie => {
-//   sync.sync(cookie, get_airtable_token());
-// });
-
 var token = alerts.get_secure_token("RAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.", "A_xxxxxxxxxxxxxxx", "Axxxxxxxxxxxxxxxx");
 sync.sync(token, get_airtable_token())
 
-async function get_google_cookie() {
-  var cookies = await alerts.get_chrome_cookie("Profile 8");
-  return alerts.get_secure_token(cookies.SID, cookies.SSID, cookies.HSID);
-}
+// get_chrome_cookie().then(cookies => {
+//   sync.sync(alerts.get_secure_token(cookies.SID, cookies.SSID, cookies.HSID), get_airtable_token());
+// });
+//
+// async function get_chrome_cookie() {
+//   const chromeCookies = require("chrome-cookies-secure");
+//   return chromeCookies.getCookiesPromised("https://myaccount.google.com", null, "Profile 8");
+// }
 
 function get_airtable_token() {
   return "path4oTxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
