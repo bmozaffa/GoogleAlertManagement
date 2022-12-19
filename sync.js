@@ -1,6 +1,4 @@
-console.log("Running...");
-// const baseId = "app9RtRrw9rTjgbUZ";
-const baseId = "appdpBAn1QPm2n9Jw";
+const baseId = "app9RtRrw9rTjgbUZ";
 
 function sync(cookie, token) {
   const alerts = require("./googlealerts");
@@ -92,7 +90,6 @@ function compare_alerts(records, alerts) {
 async function desired_alerts(token) {
   const airtable = require("./airtable.js");
   airtable.configure(token, baseId);
-  // airtable.configure(token, 'app9RtRrw9rTjgbUZ');
   return airtable.get_alert_rows();
 }
 
