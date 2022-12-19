@@ -17,6 +17,14 @@ async function list_alerts(token) {
   );
 }
 
+async function create_alerts(token, records) {
+  var createPromises = [];
+  for (record of records) {
+    createPromises.push(create_alert(token, record));
+  }
+  return Promise.allSettled(createPromises);
+}
+
 async function create_alert(token, record) {
   alerts.configure({
     cookies: token
@@ -48,6 +56,14 @@ async function create_alert(token, record) {
       });
     });
   });
+}
+
+async function remove_alerts(token, alerts) {
+  var removePromises = [];
+  for (alert of alerts) {
+    removePromises.push(remove_alert(token, alert.id));
+  }
+  return Promise.allSettled(removePromises);
 }
 
 async function remove_alert(token, alertId) {
@@ -94,5 +110,5 @@ function get_secure_token(sid, ssid, hsid) {
 }
 
 module.exports = {
-  get_secure_token, list_alerts, create_alert, remove_alert
+  get_secure_token, list_alerts, create_alerts, remove_alerts
 }

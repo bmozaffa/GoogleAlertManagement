@@ -4,24 +4,57 @@ const baseId = "appdpBAn1QPm2n9Jw";
 
 function sync(cookie, token) {
   const alerts = require("./googlealerts");
-  Promise.all([desired_alerts(token), alerts.list_alerts(cookie)]).then((alertResults) => {
-    var comparison = compare_alerts(alertResults[0], alertResults[1]);
-    console.log("Will delete %s records, create %s records, and update %s records", comparison.delete.length, comparison.create.length, comparison.update.length);
-    for (alert of comparison.delete) {
-      alerts.remove_alert(cookie, alert.id);
-    }
-    if (comparison.update.length > 0) {
-      update_alerts(token, comparison.update);
-    }
-    for (record of comparison.create) {
-      alerts.create_alert(cookie, record, (recordId, rss)=>{
-        console.log("Created alert and will update record %s with %s", recordId, rss);
-        update_alert(token, recordId, rss);
+  return new Promise((resolve, reject) => {
+    Promise.all([desired_alerts(token), alerts.list_alerts(cookie)]).then((alertResults) => {
+      const operations = {
+        added: [],
+        updated: [],
+        removed: [],
+        addFailed: [],
+        updateFailed: [],
+        removeFailed: [],
+      };
+      const comparison = compare_alerts(alertResults[0], alertResults[1]);
+      console.log("Will delete %s records, create %s records, and update %s records", comparison.delete.length, comparison.create.length, comparison.update.length);
+      alerts.create_alerts(cookie, comparison.create).then(creations => {
+        for (creation of creations) {
+          if (creation.status === 'fulfilled') {
+            operations.added.push(creation.value);
+          } else {
+            operations.addFailed.push(creation.value);
+          }
+        }
+        const deletesPromised = alerts.remove_alerts(cookie, comparison.delete);
+        const updatesPromised = update_alerts(token, comparison.update, operations.added);
+        Promise.allSettled([deletesPromised, updatesPromised]).then(results => {
+          if (results[0].status === 'fulfilled') {
+            for (deleted of results[0].value) {
+              if (deleted.status === 'fulfilled') {
+                operations.removed.push(deleted.value);
+              } else {
+                operations.removeFailed.push(deleted.value);
+              }
+            }
+          } else {
+            operations.removeFailed.push(results[0].value);
+          }
+          if (results[1].status === 'fulfilled') {
+            for (record of results[1].value) {
+              operations.updated.push(record);
+            }
+          } else {
+            operations.updateFailed.push(true);
+          }
+          resolve(operations);
+        });
+      }).catch(function (err) {
+        console.error(err, err.stack);
+        reject(err);
       });
-    }
-    console.log("Completed running sync script");
-  }).catch(function(err) {
-    console.error(err, err.stack);
+    }).catch(function (err) {
+      console.error(err, err.stack);
+      reject(err);
+    });
   });
 }
 
@@ -63,17 +96,26 @@ async function desired_alerts(token) {
   return airtable.get_alert_rows();
 }
 
-async function update_alert(token, recordId, rss) {
+async function update_alerts(token, updates, newFeeds) {
+  var records = [];
+  for (object of newFeeds) {
+    records.push({
+      id: object.recordId,
+      fields: {
+        "RSS Feed": object.rss
+      }
+    });
+  }
+  for (object of updates) {
+    records.push({
+      id: object.id,
+      fields: {
+        "RSS Feed": object.get("RSS Feed")
+      }
+    });
+  }
   const airtable = require("./airtable.js");
   airtable.configure(token, baseId);
-  // airtable.configure(getAirtableToken(), 'app9RtRrw9rTjgbUZ');
-  return airtable.update_alert(recordId, rss);
-}
-
-async function update_alerts(token, records) {
-  const airtable = require("./airtable.js");
-  airtable.configure(token, baseId);
-  // airtable.configure(getAirtableToken(), 'app9RtRrw9rTjgbUZ');
   return airtable.update_alerts(records);
 }
 

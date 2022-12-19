@@ -11,38 +11,23 @@ async function get_alert_rows() {
   return records;
 }
 
-async function update_alert(recordId, rss) {
-  airTableBase('Google Alerts Keywords').update([
-    {
-      "id": recordId,
-      "fields": {
-        "RSS Feed": rss
-      }
-    }
-  ], function(err) {
-    if (err) {
-      console.error(err);
-    }
-  });
-}
-
-async function update_alerts(objects) {
-  var records = [];
-  for (object of objects) {
-    records.push({
-      id: object.id,
-      fields: {
-        "RSS Feed": object.get("RSS Feed")
-      }
-    });
-  }
-  airTableBase('Google Alerts Keywords').update(records, function(err) {
-    if (err) {
-      console.error(err);
+async function update_alerts(records) {
+  return new Promise((resolve, reject) => {
+    if (records.length === 0) {
+      resolve([]);
+    } else {
+      airTableBase('Google Alerts Keywords').update(records, function (err, records) {
+        if (err) {
+          console.error(err, err.stack);
+          reject(err);
+        } else {
+          resolve(records);
+        }
+      });
     }
   });
 }
 
 module.exports = {
-  configure, get_alert_rows, update_alerts, update_alert
+  configure, get_alert_rows, update_alerts
 };
