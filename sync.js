@@ -20,6 +20,8 @@ function sync(cookie, token) {
       });
     }
     console.log("Completed running sync script");
+  }).catch(function(err) {
+    console.error(err, err.stack);
   });
 }
 
