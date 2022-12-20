@@ -43,9 +43,11 @@ const requestListener = function (req, res) {
         res.write("Delete obsolete alert  " + record);
         res.write("<br/>")
       }
-      for (record of operations.updated) {
-        res.write("Updated RSS feed in Airtable for " + record.get("Alerts Keyword"));
-        res.write("<br/>")
+      for (batch of operations.updated) {
+        for (record of batch) {
+          res.write("Updated RSS feed in Airtable for " + record.get("Alerts Keyword"));
+          res.write("<br/>")
+        }
       }
       res.write("<p/>")
       res.end("Finished reconciling table with Google Alerts")

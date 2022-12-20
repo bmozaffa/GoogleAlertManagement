@@ -37,11 +37,15 @@ function sync(cookie, token) {
             operations.removeFailed.push(results[0].value);
           }
           if (results[1].status === 'fulfilled') {
-            for (record of results[1].value) {
-              operations.updated.push(record);
+            for (updated of results[1].value) {
+              if (updated.status === 'fulfilled') {
+                operations.updated.push(updated.value);
+              } else {
+                operations.updateFailed.push(true);
+              }
             }
           } else {
-            operations.updateFailed.push(true);
+            operations.updateFailed.push(results[1].value);
           }
           resolve(operations);
         });

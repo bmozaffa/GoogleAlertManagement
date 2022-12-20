@@ -12,20 +12,27 @@ async function get_alert_rows() {
 }
 
 async function update_alerts(records) {
-  return new Promise((resolve, reject) => {
-    if (records.length === 0) {
-      resolve([]);
-    } else {
-      airTableBase('Google Alerts Keywords').update(records, function (err, records) {
-        if (err) {
-          console.error(err, err.stack);
-          reject(err);
-        } else {
-          resolve(records);
-        }
-      });
-    }
-  });
+  const batchPromises = [];
+  for (let index = 0; index < (records.length / 10); index++) {
+    const start = (index * 10);
+    const end = Math.min(start + 10, records.length);
+    const slice = records.slice(start, end);
+    batchPromises.push(new Promise((resolve, reject) => {
+      if (slice.length === 0) {
+        resolve([]);
+      } else {
+        airTableBase('Google Alerts Keywords').update(slice, function (err, records) {
+          if (err) {
+            console.error(err, err.stack);
+            reject(err);
+          } else {
+            resolve(records);
+          }
+        });
+      }
+    }));
+  }
+  return Promise.allSettled(batchPromises);
 }
 
 module.exports = {

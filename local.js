@@ -22,8 +22,10 @@ function doSync(token) {
     for (record of operations.removed) {
       console.log("Delete obsolete alert  " + record);
     }
-    for (record of operations.updated) {
-      console.log("Updated RSS feed in Airtable for " + record.get("Alerts Keyword"));
+    for (batch of operations.updated) {
+      for (record of batch) {
+        console.log("Updated RSS feed in Airtable for " + record.get("Alerts Keyword"));
+      }
     }
   });
 }
